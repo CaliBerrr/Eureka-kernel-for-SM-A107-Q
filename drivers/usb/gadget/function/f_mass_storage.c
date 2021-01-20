@@ -3938,6 +3938,11 @@ static int create_mass_storage_device(struct usb_function_instance *fi)
 	dev_set_drvdata(dev, fi);
 	return 0;
 }
+#else
+static int create_mass_storage_device(struct usb_function_instance *fi)
+{
+	return 0;
+}
 #endif
 static void fsg_free_inst(struct usb_function_instance *fi)
 {
@@ -3991,12 +3996,11 @@ static struct usb_function_instance *fsg_alloc_inst(void)
 
 	config_group_init_type_name(&opts->lun0.group, "lun.0", &fsg_lun_type);
 
-#ifdef CONFIG_USB_ANDROID_SAMSUNG_COMPOSITE
 	if (create_mass_storage_device(&opts->func_inst)) {
 		rc = -ENODEV;
 		goto release_buffers;
 	}
-#endif
+
 	configfs_add_default_group(&opts->lun0.group, &opts->func_inst.group);
 
 	return &opts->func_inst;
